@@ -20,20 +20,21 @@ jobs:
           tar -xf renpy-8.2.1-sdk.tar.bz2
           chmod +x renpy-8.2.1-sdk/renpy.sh
 
-      - name: Force Inject Build Config
+      - name: Build Windows Distribution
         run: |
-          # 强制创建一个包含打包定义的 options.rpy 文件
-          # 确保 RenPy 知道它该干活了
-          mkdir -p game
-          cat > game/distribute_options.rpy <<EOF
-          init python:
-              build.directory_name = "Aozora-Build"
-              build.executable_name = "Aozora"
-              build.archive("scripts", "all")
-              build.classify("game/**.rpy", "scripts")
-              build.classify("game/**.rpyc", "scripts")
-              build.package("windows", "zip", "windows", description="Windows Version")
-          EOF
+          PROJECT_PATH=$(pwd)
+          cd renpy-8.2.1-sdk
+          # 之前这一步已经成功了，保持不动
+          ./renpy.sh launcher distribute "$PROJECT_PATH"
+
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aozora-Windows-Package
+          # 截图 392 显示包已经打好了，它们就在 SDK 目录下的 dist 文件夹里
+          # 咱们用最保险的通配符，只写一行，防止格式解析错误
+          path: "renpy-8.2.1-sdk/dist/*.zip"
+          if-no-files-found: error
 
       - name: Build Windows Distribution
         run: |
