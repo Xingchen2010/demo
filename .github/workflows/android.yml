@@ -14,22 +14,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Download RenPy
+      - name: Download and Install RenPy SDK
         run: |
+          # 下载 8.2.1 版本的 SDK
           wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
           tar -xf renpy-8.2.1-sdk.tar.bz2
-          # 赋予执行权限
-          chmod +x ./renpy-8.2.1-sdk/renpy.sh
+          # 统一给 SDK 目录下的所有 sh 文件授权
+          chmod -R +x renpy-8.2.1-sdk/*.sh
 
-      - name: Build Android
+      - name: Build Android APK
         run: |
-          # 核心修正：使用 launcher 接口并明确指向当前目录 (.)
-          # 同时使用 assemble 命令生成正式的 apk
-          ./renpy-8.2.1-sdk/renpy.sh launcher android_build . --assemble
+          # 核心修正：直接调用 sh，第一个参数是项目路径 (.)，第二个参数是指令 (android_build)
+          # 这是 Ren'Py 命令行最稳健的识别方式
+          ./renpy-8.2.1-sdk/renpy.sh . android_build --assemble
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Aozora-Game-APK
-          # 这里的路径改成通配符，确保能抓到生成的包
-          path: "**/bin/*.apk"
+          name: Aozora-Android-Package
+          # 扫描所有生成的 apk 文件并打包上传
+          path: "**/*.apk"
