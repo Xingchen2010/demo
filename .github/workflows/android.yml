@@ -8,20 +8,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Install RenPy SDK
         run: |
-          # 下载 SDK
+          # 下载官方 SDK 压缩包
           wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
+          # 解压
           tar -xf renpy-8.2.1-sdk.tar.bz2
+          # 将解压后的目录加入环境变量，方便后续调用
           echo "$(pwd)/renpy-8.2.1-sdk" >> $GITHUB_PATH
 
       - name: Build Android APK
         run: |
-          # 运行编译命令，使用你在根目录准备好的 .android.json
-          ./renpy-8.2.1-sdk/renpy.sh . android_build --bundle
+          # 1. 给执行脚本加权限
+          chmod +x ./renpy-8.2.1-sdk/renpy.sh
           
+          # 2. 调用 launcher 模块进行安卓编译
+          # "." 代表当前仓库根目录，即游戏代码所在位置
+          # --bundle 参数会自动根据 .android.json 生成包
+          ./renpy-8.2.1-sdk/renpy.sh launcher android_build . --bundle
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Aozora-Android-Package
+          # 使用通配符匹配所有生成的 apk 文件
           path: "**/*.apk"
