@@ -22,21 +22,18 @@ jobs:
 
       - name: Build Windows Distribution
         run: |
-          # 1. 获取当前目录绝对路径
           PROJECT_PATH=$(pwd)
-          # 2. 创建一个确定的输出目录
+          # 创建输出目录
           mkdir -p $PROJECT_PATH/output
           
-          # 3. 进入 SDK 目录执行
           cd renpy-8.2.1-sdk
-          
-          # 4. 关键：使用 --destination 参数强制指定输出位置到根目录的 output 文件夹
-          ./renpy.sh launcher distribute "$PROJECT_PATH" --package windows --destination "$PROJECT_PATH/output"
+          # 核心修正：添加 --update 确保项目被正确识别，并使用绝对路径 destination
+          ./renpy.sh launcher distribute "$PROJECT_PATH" --package windows --update --destination "$PROJECT_PATH/output"
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
           name: Aozora-Windows-Version
-          # 直接去我们指定的 output 文件夹里抓取所有的 zip 文件
-          path: output/*.zip
+          # 使用通配符递归搜索，确保万无一失
+          path: "output/**/*.zip"
           if-no-files-found: error
