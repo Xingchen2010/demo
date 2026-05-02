@@ -1,0 +1,11 @@
+{
+    "number": 1,
+    "name": "Aozora no Shita",
+    "package": "com.xingchen.aozora",
+    "include_update": false,
+    "icon_name": "Aozora",
+    "version": "1.0",
+    "permissions": [],
+    "store": "none",
+    "update_packages": []
+}
