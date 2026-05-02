@@ -8,20 +8,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Android APK
-        uses: Ayowel/renpy-setup-action@v2
+      # 使用这个更稳定的 Action，它会自动下载并配置 Ren'Py 环境
+      - name: Ren'Py Build
+        uses: mal some/renpy-build-action@v1
         with:
-          # 必填项：操作行为
-          action: 'android_build'
-          # 对应日志里的 'version' 参数，代替之前的 sdk-version
-          version: '8.2.1'
-          # 对应日志里的 'game' 参数，代替之前的 project-path
-          game: '.'
-          # 对应日志里的 'out_dir' 参数，代替之前的 output-dir
-          out_dir: 'dist'
+          sdk-version: '8.2.1'
+          project-path: '.'
+          # 指定只构建安卓
+          build-android: true
 
-      - name: Upload Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: game-apk
-          path: 'dist/*.apk'
+          name: Aozora-Android-APK
+          # Ren'Py 默认构建输出在项目根目录的 -dists 结尾的文件夹里
+          path: '*-dists/*.apk'
