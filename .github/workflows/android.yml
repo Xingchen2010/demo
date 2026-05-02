@@ -8,18 +8,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 使用这个更稳定的 Action，它会自动下载并配置 Ren'Py 环境
-      - name: Ren'Py Build
-        uses: mal some/renpy-build-action@v1
-        with:
-          sdk-version: '8.2.1'
-          project-path: '.'
-          # 指定只构建安卓
-          build-android: true
+      - name: Install RenPy SDK
+        run: |
+          # 下载 SDK
+          wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
+          tar -xf renpy-8.2.1-sdk.tar.bz2
+          echo "$(pwd)/renpy-8.2.1-sdk" >> $GITHUB_PATH
 
+      - name: Build Android APK
+        run: |
+          # 运行编译命令，使用你在根目录准备好的 .android.json
+          ./renpy-8.2.1-sdk/renpy.sh . android_build --bundle
+          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Aozora-Android-APK
-          # Ren'Py 默认构建输出在项目根目录的 -dists 结尾的文件夹里
-          path: '*-dists/*.apk'
+          name: Aozora-Android-Package
+          path: "**/*.apk"
