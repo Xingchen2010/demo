@@ -33,8 +33,3 @@ jobs:
           name: Aozora-Game-APK
           # 这里的路径改成通配符，确保能抓到生成的包
           path: "**/bin/*.apk"
-        uses: actions/upload-artifact@v4
-        with:
-          name: Aozora-Android-Package
-          # 使用通配符匹配所有生成的 apk 文件
-          path: "**/*.apk"
