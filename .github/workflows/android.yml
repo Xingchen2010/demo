@@ -18,22 +18,25 @@ jobs:
         run: |
           wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
           tar -xf renpy-8.2.1-sdk.tar.bz2
+          chmod +x renpy-8.2.1-sdk/renpy.sh
 
       - name: Build Android APK
         run: |
-          # 1. 记录路径
-          ROOT_DIR=$(pwd)
-          SDK_DIR=$ROOT_DIR/renpy-8.2.1-sdk
+          # 1. 定义绝对路径，防止 RenPy 找不到家
+          export RENPY_PATH=$(pwd)/renpy-8.2.1-sdk
+          export GAME_PATH=$(pwd)
           
-          # 2. 核心：设置 PythonPath 确保能找到 RenPy 模块
-          export PYTHONPATH=$SDK_DIR:$SDK_DIR/renpy
-          
-          # 3. 强制触发安卓环境安装
-          # 我们不再通过 renpy.sh 调用，而是直接用 python 运行 launcher 模块
-          python3 $SDK_DIR/renpy.py $SDK_DIR/launcher android_configure "$ROOT_DIR" --yes
+          # 2. 关键：进入 SDK 目录执行，并显式指向 launcher 文件夹
+          # 这是解决 "unknown command" 的终极手段
+          cd $RENPY_PATH
+          ./renpy.sh launcher android_configure "$GAME_PATH" --yes
+          ./renpy.sh launcher android_build "$GAME_PATH" --assemble
 
-          # 4. 执行正式打包
-          python3 $SDK_DIR/renpy.py $SDK_DIR/launcher android_build "$ROOT_DIR" --assemble
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aozora-Android-Package
+          path: "**/*.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
