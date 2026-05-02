@@ -20,18 +20,34 @@ jobs:
           tar -xf renpy-8.2.1-sdk.tar.bz2
           chmod +x renpy-8.2.1-sdk/renpy.sh
 
+      - name: Force Inject Build Config
+        run: |
+          # 强制创建一个包含打包定义的 options.rpy 文件
+          # 确保 RenPy 知道它该干活了
+          mkdir -p game
+          cat > game/distribute_options.rpy <<EOF
+          init python:
+              build.directory_name = "Aozora-Build"
+              build.executable_name = "Aozora"
+              build.archive("scripts", "all")
+              build.classify("game/**.rpy", "scripts")
+              build.classify("game/**.rpyc", "scripts")
+              build.package("windows", "zip", "windows", description="Windows Version")
+          EOF
+
       - name: Build Windows Distribution
         run: |
           PROJECT_PATH=$(pwd)
           cd renpy-8.2.1-sdk
-          # 核心修正：不再只传 windows，而是运行默认的全平台分发指令
-          # 这能解决 "No packages are selected" 的问题
+          # 运行分发命令
           ./renpy.sh launcher distribute "$PROJECT_PATH"
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
           name: Aozora-Windows-Version
-          # 扫描所有生成的 zip 压缩包，不管它叫什么
-          path: "**/*.zip"
+          # 提高抓取范围：抓取所有 zip 及其所在的文件夹
+          path: |
+            renpy-8.2.1-sdk/dist/*.zip
+            **/*.zip
           if-no-files-found: error
