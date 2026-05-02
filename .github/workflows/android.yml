@@ -1,6 +1,5 @@
 name: Mobile Build APK
-on: 
-  workflow_dispatch: # 允许手动点击按钮触发编译
+on: workflow_dispatch
 
 jobs:
   build:
@@ -9,17 +8,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Ren'Py Android
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Android APK
         uses: Ayowel/renpy-setup-action@v2
         with:
           sdk-version: '8.2.1'
-          # 这里会自动处理安卓构建
           action: 'android_build'
-          # 你的项目路径，如果是根目录就写 .
           project-path: '.'
+          # 强制指定输出目录
+          output-dir: 'dist'
 
-      - name: Upload APK
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: my-game-apk
-          path: '**/*.apk'
+          name: game-apk
+          path: 'dist/*.apk'
