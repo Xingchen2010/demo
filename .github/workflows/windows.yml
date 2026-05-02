@@ -22,18 +22,21 @@ jobs:
 
       - name: Build Windows Distribution
         run: |
+          # 1. 记录绝对路径
           PROJECT_PATH=$(pwd)
-          # 创建输出目录
-          mkdir -p $PROJECT_PATH/output
           
+          # 2. 进入 SDK 目录，这是确保命令能识别的关键
           cd renpy-8.2.1-sdk
-          # 核心修正：添加 --update 确保项目被正确识别，并使用绝对路径 destination
-          ./renpy.sh launcher distribute "$PROJECT_PATH" --package windows --update --destination "$PROJECT_PATH/output"
+          
+          # 3. 极简执行：[脚本] [模块] [项目路径] [命令] [目标平台]
+          # 删掉了会导致报错的 --update 和 --destination
+          ./renpy.sh launcher distribute "$PROJECT_PATH" --package windows
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
           name: Aozora-Windows-Version
-          # 使用通配符递归搜索，确保万无一失
-          path: "output/**/*.zip"
+          # 重点：RenPy 默认会把包生成在 SDK 目录下的 dist 文件夹里
+          # 我们直接去那里抓取
+          path: renpy-8.2.1-sdk/dist/*.zip
           if-no-files-found: error
