@@ -16,18 +16,27 @@ jobs:
 
       - name: Install RenPy SDK
         run: |
+          # 下载并解压
           wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
           tar -xf renpy-8.2.1-sdk.tar.bz2
+          # 授予权限
+          chmod +x renpy-8.2.1-sdk/renpy.sh
 
       - name: Build Android APK
         run: |
+          # 获取当前游戏源码的绝对路径
           PROJECT_PATH=$(pwd)
+          
+          # 进入 SDK 目录执行，这是解决“命令未知”的最稳妥办法
           cd renpy-8.2.1-sdk
-          chmod +x renpy.sh
-          ./renpy.sh "$PROJECT_PATH" android_build --assemble
+          
+          # 执行编译：
+          # [脚本] [调用launcher模块] [安卓构建命令] [游戏项目路径] [生成APK选项]
+          ./renpy.sh launcher android_build "$PROJECT_PATH" --assemble
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Aozora-Android-Package
+          # 扫描所有生成的 apk 文件并打包
           path: "**/*.apk"
