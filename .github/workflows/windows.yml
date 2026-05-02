@@ -40,4 +40,3 @@ jobs:
           # 直接去我们指定的 output 文件夹里抓取所有的 zip 文件
           path: output/*.zip
           if-no-files-found: error
-          path: "renpy-8.2.1-sdk/dist/*.zip"
