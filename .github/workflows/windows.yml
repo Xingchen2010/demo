@@ -1,0 +1,29 @@
+name: Build Windows Version
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install RenPy SDK
+        run: |
+          # 下载官方 8.2.1 SDK
+          wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
+          tar -xf renpy-8.2.1-sdk.tar.bz2
+          chmod +x renpy-8.2.1-sdk/renpy.sh
+
+      - name: Build Windows Distribution
+        run: |
+          # Windows 打包指令非常简单，直接调用 distribute
+          # "." 代表当前游戏源码根目录
+          ./renpy-8.2.1-sdk/renpy.sh . distribute --package windows
+
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aozora-Windows-Version
+          # 打包后的文件通常在项目根目录下的 'dist' 文件夹内
+          path: "dist/*.zip"
