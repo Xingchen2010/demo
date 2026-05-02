@@ -16,24 +16,30 @@ jobs:
 
       - name: Install RenPy SDK
         run: |
-          # 下载 8.2.1 版本 SDK
           wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
           tar -xf renpy-8.2.1-sdk.tar.bz2
-          chmod +x renpy-8.2.1-sdk/renpy.sh
 
       - name: Build Android APK
         run: |
-          PROJECT_PATH=$(pwd)
-          cd renpy-8.2.1-sdk
+          # 1. 记录路径
+          ROOT_DIR=$(pwd)
+          SDK_DIR=$ROOT_DIR/renpy-8.2.1-sdk
           
-          # 1. 强制安装 Android RAPT 环境（解决 NoneType 报错的关键）
-          # --yes 会自动同意所有协议并下载数百MB的 Android SDK 和 NDK
-          ./renpy.sh launcher android_configure "$PROJECT_PATH" --yes
+          # 2. 核心：设置 PythonPath 确保能找到 RenPy 模块
+          export PYTHONPATH=$SDK_DIR:$SDK_DIR/renpy
+          
+          # 3. 强制触发安卓环境安装
+          # 我们不再通过 renpy.sh 调用，而是直接用 python 运行 launcher 模块
+          python3 $SDK_DIR/renpy.py $SDK_DIR/launcher android_configure "$ROOT_DIR" --yes
 
-          # 2. 执行正式编译
-          # 生成 APK 文件
-          ./renpy.sh launcher android_build "$PROJECT_PATH" --assemble
+          # 4. 执行正式打包
+          python3 $SDK_DIR/renpy.py $SDK_DIR/launcher android_build "$ROOT_DIR" --assemble
 
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aozora-Android-Package
+          path: "**/*.apk"
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
