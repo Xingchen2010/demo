@@ -8,20 +8,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
       - name: Build Android APK
         uses: Ayowel/renpy-setup-action@v2
         with:
-          sdk-version: '8.2.1'
+          # 必填项：操作行为
           action: 'android_build'
-          project-path: '.'
-          # 强制指定输出目录
-          output-dir: 'dist'
+          # 对应日志里的 'version' 参数，代替之前的 sdk-version
+          version: '8.2.1'
+          # 对应日志里的 'game' 参数，代替之前的 project-path
+          game: '.'
+          # 对应日志里的 'out_dir' 参数，代替之前的 output-dir
+          out_dir: 'dist'
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
