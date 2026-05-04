@@ -19,36 +19,17 @@ jobs:
           wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
           tar -xf renpy-8.2.1-sdk.tar.bz2
           chmod +x renpy-8.2.1-sdk/renpy.sh
-
       - name: Build Windows Distribution
         run: |
+          # 获取当前游戏源码的绝对路径
           PROJECT_PATH=$(pwd)
+          
+          # 进入 SDK 目录，直接调用 launcher 来执行 distribute 命令
           cd renpy-8.2.1-sdk
-          # 之前这一步已经成功了，保持不动
-          ./renpy.sh launcher distribute "$PROJECT_PATH"
-
-      - name: Upload Windows Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: Aozora-Windows-Package
-          # 截图 392 显示包已经打好了，它们就在 SDK 目录下的 dist 文件夹里
-          # 咱们用最保险的通配符，只写一行，防止格式解析错误
-          path: "renpy-8.2.1-sdk/dist/*.zip"
-          if-no-files-found: error
-
-      - name: Build Windows Distribution
-        run: |
-          PROJECT_PATH=$(pwd)
-          cd renpy-8.2.1-sdk
-          # 运行分发命令
-          ./renpy.sh launcher distribute "$PROJECT_PATH"
-
+          ./renpy.sh launcher distribute "$PROJECT_PATH" --package windows
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
           name: Aozora-Windows-Version
-          # 提高抓取范围：抓取所有 zip 及其所在的文件夹
-          path: |
-            renpy-8.2.1-sdk/dist/*.zip
-            **/*.zip
-          if-no-files-found: error
+          # 这样写能确保抓到生成的压缩包
+          path: "renpy-8.2.1-sdk/*.zip"
